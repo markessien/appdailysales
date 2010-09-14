@@ -55,7 +55,7 @@ appleId = 'Your Apple Id'
 password = 'Your Password'
 outputDirectory = ''
 unzipFile = False
-verbose = False
+verbose = True
 daysToDownload = 1
 dateToDownload = None
 # ----------------------------------------------------
@@ -213,9 +213,9 @@ def downloadFile(options):
     html = readHtml(opener, urlWebsite)
     match = re.search('" action="(.*)"', html)
     urlActionLogin = urlITCBase % match.group(1)
-
-	if options.verbose == True:
-		print "Connected! Logging in..."
+    
+    if options.verbose == True:
+    	print "Connected! Logging in..."
 
     # Login to iTunes Connect web site and go to the sales 
     # report page, get the form action url and form fields.  
@@ -225,10 +225,15 @@ def downloadFile(options):
     # or something.
     webFormLoginData = urllib.urlencode({'theAccountName':options.appleId, 'theAccountPW':options.password, '1.Continue':'0'})
     html = readHtml(opener, urlActionLogin, webFormLoginData)
-
-    if html.lower().find("piano-sign in") > 0:
-    	raise ITCException, 'Could not login'
-        
+    
+    print html
+	
+    if html.lower().find("did you forget your password?") > 0:
+    	raise ITCException, 'Could not login, password seems to be incorrect'
+       
+    if options.verbose == True:
+    	print "Logged in..."
+    	
     # Click through to the Sales and Trends.
     urlSalesAndTrends = urlITCBase % '/WebObjects/iTunesConnect.woa/wo/2.0.9.7.2.9.1.0.0.3'
     html = readHtml(opener, urlSalesAndTrends)
