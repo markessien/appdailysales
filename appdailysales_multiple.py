@@ -226,7 +226,9 @@ def downloadFile(options):
     webFormLoginData = urllib.urlencode({'theAccountName':options.appleId, 'theAccountPW':options.password, '1.Continue':'0'})
     html = readHtml(opener, urlActionLogin, webFormLoginData)
 
-
+    if html.lower().find("piano-sign in") > 0:
+    	raise ITCException, 'Could not login'
+        
     # Click through to the Sales and Trends.
     urlSalesAndTrends = urlITCBase % '/WebObjects/iTunesConnect.woa/wo/2.0.9.7.2.9.1.0.0.3'
     html = readHtml(opener, urlSalesAndTrends)
