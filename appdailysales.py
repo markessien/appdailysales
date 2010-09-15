@@ -55,8 +55,8 @@ appleId = 'Your Apple Id'
 password = 'Your Password'
 outputDirectory = ''
 unzipFile = False
-verbose = False
-daysToDownload = 1
+verbose = True
+daysToDownload = 3
 dateToDownload = None
 # ----------------------------------------------------
 
@@ -213,7 +213,9 @@ def downloadFile(options):
     html = readHtml(opener, urlWebsite)
     match = re.search('" action="(.*)"', html)
     urlActionLogin = urlITCBase % match.group(1)
-
+    
+    if options.verbose == True:
+    	print "Connected! Logging in..."
 
     # Login to iTunes Connect web site and go to the sales 
     # report page, get the form action url and form fields.  
@@ -223,13 +225,20 @@ def downloadFile(options):
     # or something.
     webFormLoginData = urllib.urlencode({'theAccountName':options.appleId, 'theAccountPW':options.password, '1.Continue':'0'})
     html = readHtml(opener, urlActionLogin, webFormLoginData)
-
-
+    
+    if html.lower().find("did you forget your password?") > 0:
+    	raise ITCException, 'Could not login, password seems to be incorrect'
+       
+    if options.verbose == True:
+    	print "Logged in. Getting sales and trends page"
+    	
     # Click through to the Sales and Trends.
     urlSalesAndTrends = urlITCBase % '/WebObjects/iTunesConnect.woa/wo/2.0.9.7.2.9.1.0.0.3'
     html = readHtml(opener, urlSalesAndTrends)
-
-
+    
+    if options.verbose == True:
+    	print "Getting sales report page..."
+    	
     # We're at the vendor default page. Might need additional work if your account
     # has more than one vendor.
 
@@ -238,7 +247,14 @@ def downloadFile(options):
     urlSalesReport = 'https://reportingitc.apple.com/sales.faces'
     html = readHtml(opener, urlSalesReport)
 
-
+    if options.verbose == True:
+    	print "Entering vendor page..."
+  
+    if html.lower().find("your session has timed out") > 0:
+    	raise ITCException, 'Session time-out error'
+   
+    print html
+    
     # Get the form field names needed to download the report.
     match = re.findall('"javax.faces.ViewState" value="(.*?)"', html)
     viewState = match[0]

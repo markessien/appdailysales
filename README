@@ -1,5 +1,1 @@
-This is a form of the appdailysales.py script, but customized to be more verbose, and also to work with accounts that have multiple sub-accounts on the iPhone.
-
-Differences from other script
-* Verbose is on by default
-* Gives errors like "Could not login, password is incorrect"
+This is a fork of the appdailysales.py script, but slightly more verbose. I keep it here for quick updates in case apple changes their site
